@@ -48,6 +48,27 @@ defmodule Rumbl.AuthTest do
     refute get_session(next_conn, :user_id)
   end
 
+  test "login with valid username and password", %{conn: conn} do
+    user = insert_user(username: "foo", password: "secret")
+    {:ok, conn} =
+      Auth.login_by_username_and_pass(conn, user.username, user.password, repo: Repo)
+
+    assert conn.assigns.current_user.id == user.id
+  end
+
+  test "login with invalid username", %{conn: conn} do
+    assert {:error, :not_found, _conn} =
+      Auth.login_by_username_and_pass(conn, "me", "pass", repo: Repo)
+  end
+
+  test "login with invalid password", %{conn: conn} do
+    user = insert_user(username: "foo", password: "secret")
+
+    assert {:error, :unauthorized, _conn} =
+      Auth.login_by_username_and_pass(conn, user.username, "wrong", repo: Repo)
+
+  end
+
   test "call use user into session to set assign", %{conn: conn} do
     user = insert_user()
     conn =
