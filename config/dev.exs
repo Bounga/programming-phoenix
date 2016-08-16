@@ -8,6 +8,11 @@ use Mix.Config
 # with brunch.io to recompile .js and .css sources.
 config :rumbl, Rumbl.Endpoint,
   http: [port: 4000],
+  https: [
+    port: 4443,
+    keyfile: "priv/keys/localhost.key",
+    certfile: "priv/keys/localhost.cert"
+  ],
   debug_errors: true,
   code_reloader: true,
   check_origin: false,
