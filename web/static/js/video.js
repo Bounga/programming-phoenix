@@ -8,7 +8,6 @@ let Video = {
     const videoId = element.dataset.id;
 
     socket.connect();
-
     Player.init(element.id, playerId, () => {
       this.onReady(videoId, socket);
     });
@@ -22,6 +21,7 @@ let Video = {
 
     msgSubmit.addEventListener("click", () => {
       const payload =  {body: msgInput.value, at: Player.getCurrentTime()};
+
       vidChannel.push("new_annotation", payload)
         .receive("error", e => console.log(e));
       msgInput.value = "";
@@ -30,8 +30,6 @@ let Video = {
     vidChannel.on("new_annotation", resp => {
       this.renderAnnotation(msgContainer, resp);
     });
-
-    vidChannel.on("ping", ({count}) => console.log("PING", count));
 
     vidChannel.join()
       .receive("ok", resp => console.log("joined the video channel", resp))
