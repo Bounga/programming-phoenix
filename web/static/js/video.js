@@ -1,6 +1,6 @@
 import Player from "./player";
 
-let Video = {
+const Video = {
   init(socket, element) {
     if (!element) { return; }
 
@@ -33,7 +33,7 @@ let Video = {
 
     vidChannel.join()
       .receive("ok", ({annotations}) => {
-        annotations.forEach(ann => this.renderAnnotation(msgContainer, ann));
+        this.scheduleMessages(msgContainer, annotations);
       })
       .receive("error", reason => console.log("join failed", reason));
   },
@@ -50,11 +50,41 @@ let Video = {
 
     template.innerHTML = `
       <a href="#" data-seek="${this.esc(at)}">
+        [${this.formatTime(at)}]
         <b>${this.esc(user.username)}</b>: ${this.esc(body)}
      </a>`;
 
     msgContainer.appendChild(template);
     msgContainer.scrollTop = msgContainer.scrollHeight;
+  },
+
+  scheduleMessages(msgContainer, annotations) {
+    setTimeout(() => {
+      const time = Player.getCurrentTime();
+      const remaining = this.renderAtTime(annotations, time, msgContainer);
+
+      this.scheduleMessages(msgContainer, remaining);
+    }, 1000);
+  },
+
+  renderAtTime(annotations, time, msgContainer) {
+    return annotations.filter(ann => {
+      if (ann.at > time) {
+        return true;
+      }
+      else {
+        this.renderAnnotation(msgContainer, ann);
+
+        return false;
+      }
+    });
+  },
+
+  formatTime(at) {
+    const date = new Date(null);
+    date.setSeconds(at / 1000);
+
+    return date.toISOString().substr(14, 5);
   }
 };
 
