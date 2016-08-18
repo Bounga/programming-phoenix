@@ -36,6 +36,15 @@ const Video = {
         this.scheduleMessages(msgContainer, annotations);
       })
       .receive("error", reason => console.log("join failed", reason));
+
+    msgContainer.addEventListener("click", e => {
+      e.preventDefault();
+
+      const time = e.target.dataset.seek || e.target.parentNode.dataset.seek;
+      if (!time) { return; }
+
+      Player.seekTo(time);
+    });
   },
 
   esc(str) {
